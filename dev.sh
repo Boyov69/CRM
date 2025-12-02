@@ -1,6 +1,9 @@
 #!/bin/bash
 # Development startup script
 
+# Set development environment
+export NODE_ENV=development
+
 echo "🚀 Starting CRM Development Environment"
 echo ""
 
