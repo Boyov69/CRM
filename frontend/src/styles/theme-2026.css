@@ -32,22 +32,22 @@
   --info: #3b82f6;
   --info-light: #dbeafe;
   
-  /* Neutral Palette - Soft & Muted */
+  /* Neutral Palette - Enhanced Contrast for Readability */
   --gray-50: #fafbfc;
   --gray-100: #f4f6f8;
   --gray-200: #e8ecf1;
   --gray-300: #d5dce5;
-  --gray-400: #a6b3c5;
-  --gray-500: #7c8a9e;
-  --gray-600: #5c6c81;
-  --gray-700: #3e4c5e;
-  --gray-800: #2d3748;
-  --gray-900: #1a202c;
+  --gray-400: #8896a8;
+  --gray-500: #5f6d7e;
+  --gray-600: #475569;
+  --gray-700: #2d3748;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
   
-  /* Glassmorphic Base */
-  --glass-white: rgba(255, 255, 255, 0.75);
-  --glass-white-light: rgba(255, 255, 255, 0.5);
-  --glass-dark: rgba(31, 41, 55, 0.75);
+  /* Glassmorphic Base - Enhanced for Better Text Contrast */
+  --glass-white: rgba(255, 255, 255, 0.85);
+  --glass-white-light: rgba(255, 255, 255, 0.65);
+  --glass-dark: rgba(31, 41, 55, 0.85);
   --glass-primary: rgba(91, 124, 255, 0.15);
   
   /* Gradients */
@@ -119,6 +119,7 @@ body {
   background-image: var(--gradient-mesh);
   color: var(--gray-900);
   overflow-x: hidden;
+  line-height: 1.6;
 }
 
 /* 🎨 Glassmorphic Card Base */
@@ -130,6 +131,7 @@ body {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-glass);
   transition: all var(--transition-smooth);
+  color: var(--gray-900);
 }
 
 .glass-card:hover {
