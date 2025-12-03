@@ -17,4 +17,4 @@ def register_blueprints(app: Flask):
     app.register_blueprint(pipeline_bp, url_prefix='/api')
     app.register_blueprint(sms_bp, url_prefix='/api')
     app.register_blueprint(whatsapp_bp, url_prefix='/api')
-    app.register_blueprint(inbox_bp, url_prefix='/api')
+    app.register_blueprint(inbox_bp, url_prefix='/api/inbox')

@@ -160,3 +160,14 @@ class DatabaseService:
         except Exception as e:
             logger.error(f"JSON delete error: {e}")
             return False
+
+
+# Convenience functions for backward compatibility
+_db_instance = None
+
+def get_practice_by_id(practice_id: int) -> Optional[Dict]:
+    """Convenience function to get practice by ID"""
+    global _db_instance
+    if _db_instance is None:
+        _db_instance = DatabaseService()
+    return _db_instance.get_practice(practice_id)
