@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import MessageComposer from '../components/messaging/MessageComposer';
+import { useTemplates } from '../hooks/useTemplates';
 
 function Messaging() {
   const [practices, setPractices] = useState([]);
@@ -238,24 +239,10 @@ function Messaging() {
 const BulkComposer = ({ channel, recipientCount, onSend, onClose }) => {
   const [message, setMessage] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
-  const [templates, setTemplates] = useState([]);
   const [sending, setSending] = useState(false);
-
-  useEffect(() => {
-    loadTemplates();
-  }, [channel]);
-
-  const loadTemplates = async () => {
-    try {
-      const endpoint = channel === 'sms' 
-        ? '/api/sms/templates'
-        : '/api/whatsapp/templates';
-      const response = await axios.get(endpoint);
-      setTemplates(Object.entries(response.data.templates || {}));
-    } catch (err) {
-      console.error('Error loading templates:', err);
-    }
-  };
+  
+  // Use custom hook for templates
+  const { templates } = useTemplates(channel);
 
   const handleSend = async () => {
     if (!message.trim()) return;

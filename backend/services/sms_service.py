@@ -11,6 +11,9 @@ from twilio.base.exceptions import TwilioRestException
 
 logger = logging.getLogger(__name__)
 
+# SMS pricing constants
+SMS_COST_PER_SEGMENT_EUR = 0.0075  # €0.0075 per SMS segment (Belgium)
+
 
 class SMSService:
     """Service for sending and managing SMS messages via Twilio"""
@@ -343,17 +346,14 @@ class SMSService:
         """
         segments = self._calculate_segments(message)
         
-        # Belgium SMS cost (approximate)
-        COST_PER_SEGMENT = 0.0075  # €0.0075 per segment
-        
         total_segments = segments * recipients
-        total_cost = total_segments * COST_PER_SEGMENT
+        total_cost = total_segments * SMS_COST_PER_SEGMENT_EUR
         
         return {
             'segments_per_message': segments,
             'total_recipients': recipients,
             'total_segments': total_segments,
-            'cost_per_segment': COST_PER_SEGMENT,
+            'cost_per_segment': SMS_COST_PER_SEGMENT_EUR,
             'total_cost': round(total_cost, 4),
             'currency': 'EUR'
         }

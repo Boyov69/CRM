@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTemplates } from '../../hooks/useTemplates';
 
 const MessageComposer = ({ 
   practice, 
@@ -10,7 +11,6 @@ const MessageComposer = ({
   const [channel, setChannel] = useState(defaultChannel);
   const [message, setMessage] = useState('');
   const [template, setTemplate] = useState('');
-  const [templates, setTemplates] = useState([]);
   const [mediaUrl, setMediaUrl] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -18,38 +18,38 @@ const MessageComposer = ({
   const [smsSegments, setSmsSegments] = useState(1);
   const [cost, setCost] = useState(0);
 
-  useEffect(() => {
-    loadTemplates();
-  }, [channel]);
+  // Use custom hook for templates
+  const { templates } = useTemplates(channel);
 
   useEffect(() => {
-    // Calculate SMS metrics
+    // Calculate SMS metrics using backend API
     if (channel === 'sms') {
       setCharCount(message.length);
-      const segments = calculateSegments(message);
-      setSmsSegments(segments);
-      setCost(segments * 0.0075); // €0.0075 per segment
+      
+      // Debounce API call to prevent excessive requests while typing
+      const handler = setTimeout(() => {
+        if (message) {
+          axios.post('/api/sms/estimate-cost', { message, recipients: 1 })
+            .then(response => {
+              setCost(response.data.total_cost);
+              setSmsSegments(response.data.segments_per_message);
+            })
+            .catch(err => {
+              console.error('Failed to estimate cost:', err);
+              // Fallback to simple calculation
+              const segments = Math.ceil(message.length / 160);
+              setSmsSegments(segments);
+              setCost(segments * 0.0075);
+            });
+        } else {
+          setCost(0);
+          setSmsSegments(1);
+        }
+      }, 500); // 500ms debounce delay
+
+      return () => clearTimeout(handler);
     }
   }, [message, channel]);
-
-  const calculateSegments = (text) => {
-    const length = text.length;
-    if (length <= 160) return 1;
-    return Math.ceil((length - 160) / 153) + 1;
-  };
-
-  const loadTemplates = async () => {
-    try {
-      const endpoint = channel === 'sms' 
-        ? '/api/sms/templates'
-        : '/api/whatsapp/templates?approved_only=true';
-      
-      const response = await axios.get(endpoint);
-      setTemplates(Object.entries(response.data.templates || {}));
-    } catch (err) {
-      console.error('Error loading templates:', err);
-    }
-  };
 
   const handleTemplateSelect = (templateId, templateData) => {
     setTemplate(templateId);

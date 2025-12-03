@@ -21,6 +21,27 @@ whatsapp_service = WhatsAppService()
 db = DatabaseService()
 
 
+def normalize_phone_number(phone: str) -> str:
+    """Normalize phone number to E.164 format for matching"""
+    if not phone:
+        return ""
+    
+    # Remove whatsapp: prefix if present
+    phone = phone.replace('whatsapp:', '')
+    
+    # Remove all non-digit characters except +
+    cleaned = ''.join(c for c in phone if c.isdigit() or c == '+')
+    
+    # If no country code, assume Belgian number
+    if not cleaned.startswith('+'):
+        if cleaned.startswith('0'):
+            cleaned = '+32' + cleaned[1:]
+        else:
+            cleaned = '+32' + cleaned
+    
+    return cleaned
+
+
 @whatsapp_bp.route('/whatsapp/status', methods=['GET'])
 def whatsapp_status():
     """Check if WhatsApp service is available"""
@@ -326,12 +347,16 @@ def whatsapp_webhook():
     if body and from_number and from_number.startswith('whatsapp:'):
         logger.info(f"Incoming WhatsApp from {from_number}: {body}")
         
-        # Extract phone number
-        phone = from_number.replace('whatsapp:', '')
+        # Extract and normalize phone number
+        normalized_from = normalize_phone_number(from_number)
         
-        # Find practice by phone number
+        # Find practice by phone number with proper normalization
         practices = db.get_practices()
-        practice = next((p for p in practices if p.get('tel') in phone or phone in str(p.get('tel', ''))), None)
+        practice = next(
+            (p for p in practices 
+             if normalize_phone_number(p.get('tel', '')) == normalized_from),
+            None
+        )
         
         if practice:
             # Add to communication history

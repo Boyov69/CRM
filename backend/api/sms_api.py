@@ -4,6 +4,7 @@ Handles SMS sending, templates, and history
 """
 from flask import Blueprint, jsonify, request
 import logging
+from datetime import datetime
 
 from backend.services.sms_service import SMSService, get_templates, get_template
 from backend.services.database import DatabaseService
@@ -13,6 +14,24 @@ logger = logging.getLogger(__name__)
 sms_bp = Blueprint('sms', __name__)
 sms_service = SMSService()
 db = DatabaseService()
+
+
+def normalize_phone_number(phone: str) -> str:
+    """Normalize phone number to E.164 format for matching"""
+    if not phone:
+        return ""
+    
+    # Remove all non-digit characters except +
+    cleaned = ''.join(c for c in phone if c.isdigit() or c == '+')
+    
+    # If no country code, assume Belgian number
+    if not cleaned.startswith('+'):
+        if cleaned.startswith('0'):
+            cleaned = '+32' + cleaned[1:]
+        else:
+            cleaned = '+32' + cleaned
+    
+    return cleaned
 
 
 @sms_bp.route('/sms/status', methods=['GET'])
@@ -264,9 +283,16 @@ def sms_webhook():
         # This is an incoming message (reply)
         logger.info(f"Incoming SMS from {from_number}: {body}")
         
+        # Normalize the incoming phone number for matching
+        normalized_from = normalize_phone_number(from_number)
+        
         # Find practice by phone number
         practices = db.get_practices()
-        practice = next((p for p in practices if p.get('tel') == from_number), None)
+        practice = next(
+            (p for p in practices 
+             if normalize_phone_number(p.get('tel', '')) == normalized_from),
+            None
+        )
         
         if practice:
             # Add to communication history
@@ -303,6 +329,3 @@ def sms_webhook():
         # TODO: Update practice communication history with new status
     
     return '', 200  # Twilio expects 200 OK
-
-
-from datetime import datetime
