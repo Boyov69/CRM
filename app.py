@@ -108,7 +108,7 @@ def find_leads():
     if not gemeente:
         return jsonify({"error": "Gemeente verplicht"}), 400
 
-        leads = search_leads(gemeente)
+    leads = search_leads(gemeente)
     return jsonify(leads)
 
 @app.route('/api/campaign/start', methods=['POST'])
