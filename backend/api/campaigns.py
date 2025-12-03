@@ -78,6 +78,25 @@ def start_campaign():
 @campaigns_bp.route('/campaigns/stats', methods=['GET'])
 def get_campaign_stats():
     """Get campaign statistics"""
-    practices = db.get_practices()
-    stats = analytics.get_stats(practices)
-    return jsonify(stats)
+    try:
+        practices = db.get_practices()
+        stats = analytics.get_stats(practices)
+        return jsonify(stats)
+    except Exception as e:
+        logger.error(f"Stats error: {e}")
+        # Fallback stats
+        practices = db.get_practices()
+        total = len(practices)
+        contacted = len([p for p in practices if p.get('workflow', {}).get('emails_sent', 0) > 0])
+        leads = len([p for p in practices if p.get('status') in ['Lead', 'Geïnteresseerd']])
+        
+        return jsonify({
+            'overview': {
+                'total': total,
+                'contacted': contacted,
+                'leads': leads,
+                'conversion_rate': leads / contacted if contacted > 0 else 0
+            },
+            'funnel': {},
+            'roi': {}
+        })
