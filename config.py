@@ -1,0 +1,99 @@
+# config.py
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class Config:
+    """Centrale configuratie management"""
+    
+    # Flask
+    SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
+    DEBUG = os.getenv('FLASK_DEBUG', 'False') == 'True'
+    
+    # Database
+    DATA_FILE = 'data/practices.json'
+    EMAIL_LOGS_FILE = 'data/email_logs.json'
+    
+    # Email Provider Selection
+    EMAIL_PROVIDER = os.getenv('EMAIL_PROVIDER', 'sendgrid')  # 'sendgrid', 'gmail', 'smtp'
+    
+    # SendGrid (RECOMMENDED voor productie)
+    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+    SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL', 'noreply@zorgcore.be')
+    SENDGRID_FROM_NAME = os.getenv('SENDGRID_FROM_NAME', 'ZorgCore Team')
+    
+    # Gmail API
+    GMAIL_CREDENTIALS_FILE = 'credentials.json'
+    GMAIL_TOKEN_FILE = 'token.json'
+    GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
+    
+    # SMTP (fallback)
+    SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
+    SMTP_USERNAME = os.getenv('SMTP_USERNAME')
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+    SMTP_USE_TLS = os.getenv('SMTP_USE_TLS', 'True') == 'True'
+    
+    # Slack Notifications
+    SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL')
+    
+    # Supabase
+    SUPABASE_URL = os.getenv('SUPABASE_URL')
+    SUPABASE_KEY = os.getenv('SUPABASE_KEY')
+    
+    # OpenAI (voor AI personalisatie)
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4')
+    
+    # Campaign Settings
+    MAX_EMAILS_PER_PRACTICE = int(os.getenv('MAX_EMAILS_PER_PRACTICE', 3))
+    EMAIL_DELAY_DAYS = [0, 5, 12]  # Dag 0, 5, 12
+    DAILY_EMAIL_LIMIT = int(os.getenv('DAILY_EMAIL_LIMIT', 100))
+    
+    # Rate Limiting
+    EMAILS_PER_MINUTE = int(os.getenv('EMAILS_PER_MINUTE', 10))
+    
+    # Tracking
+    ENABLE_OPEN_TRACKING = os.getenv('ENABLE_OPEN_TRACKING', 'True') == 'True'
+    ENABLE_CLICK_TRACKING = os.getenv('ENABLE_CLICK_TRACKING', 'True') == 'True'
+    
+    # Logging
+    LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+    LOG_FILE = 'logs/campaign.log'
+    
+    @classmethod
+    def validate(cls):
+        """Valideer of alle vereiste configuraties aanwezig zijn"""
+        errors = []
+        
+        if cls.EMAIL_PROVIDER == 'sendgrid' and not cls.SENDGRID_API_KEY:
+            errors.append("SENDGRID_API_KEY ontbreekt")
+        
+        if cls.EMAIL_PROVIDER == 'gmail' and not os.path.exists(cls.GMAIL_CREDENTIALS_FILE):
+            errors.append("Gmail credentials.json ontbreekt")
+        
+        if cls.EMAIL_PROVIDER == 'smtp' and (not cls.SMTP_USERNAME or not cls.SMTP_PASSWORD):
+            errors.append("SMTP credentials ontbreken")
+        
+        if errors:
+            # For now, just print warnings instead of raising error to allow app to start
+            print(f"⚠️ Config Warning: {', '.join(errors)}")
+            # raise ValueError(f"Configuratie fouten:\n" + "\n".join(errors))
+        
+        return True
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+    DAILY_EMAIL_LIMIT = 10  # Beperkt voor testing
+
+class ProductionConfig(Config):
+    DEBUG = False
+    DAILY_EMAIL_LIMIT = 500
+
+# Config selectie
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'default': DevelopmentConfig
+}

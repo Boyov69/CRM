@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html class="dark" lang="nl">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ZorgCore CRM 2026</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            background-color: #050508;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #10111a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00ff9d;
+        }
+
+        .glass-panel {
+            background: rgba(21, 22, 33, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        bg: { main: "#050508", panel: "#10111a", input: "#161722" },
+                        primary: "#00ff9d", // Neon green
+                        secondary: "#2b34ee", // Deep blue
+                        text: { main: "#ffffff", muted: "#94a3b8" },
+                        border: "#1e293b"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="h-screen w-full flex overflow-hidden antialiased selection:bg-primary/20 selection:text-primary">
+
+    <!-- SIDEBAR -->
+    <aside class="w-20 bg-bg-panel border-r border-white/5 flex flex-col items-center py-6 gap-8 z-20 shadow-2xl">
+        <!-- Logo -->
+        <div
+            class="size-10 bg-gradient-to-br from-primary to-emerald-600 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(0,255,157,0.3)]">
+            <span class="material-symbols-outlined text-black font-bold">spa</span>
+        </div>
+
+        <!-- Menu -->
+        <nav class="flex flex-col gap-6 w-full px-2 items-center">
+            <button
+                class="size-10 rounded-lg bg-white/5 text-primary flex items-center justify-center shadow-inner border border-white/5">
+                <span class="material-symbols-outlined">dashboard</span>
+            </button>
+            <button
+                class="size-10 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-white/5 flex items-center justify-center transition">
+                <span class="material-symbols-outlined">group</span>
+            </button>
+            <button
+                class="size-10 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-white/5 flex items-center justify-center transition">
+                <span class="material-symbols-outlined">calendar_month</span>
+            </button>
+            <button
+                class="size-10 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-white/5 flex items-center justify-center transition">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col min-w-0 relative">
+        <!-- Background Glow -->
+        <div
+            class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-secondary/10 to-transparent pointer-events-none">
+        </div>
+
+        <!-- HEADER -->
+        <header
+            class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-bg-main/50 backdrop-blur z-10">
+            <div class="flex items-center gap-3">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span
+                    class="text-xs font-bold tracking-wider text-green-500 uppercase px-2 py-1 bg-green-500/10 rounded border border-green-500/20">Welkom,
+                    Beheerder</span>
+            </div>
+
+            <div class="flex items-center gap-3 ml-4">
+                <button onclick="app.startCampaign()"
+                    class="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold hover:shadow-lg transition flex items-center gap-2 border border-white/10">
+                    <span class="material-symbols-outlined text-sm">send</span>
+                    Start Email Campagne
+                </button>
+
+                <button onclick="app.showStats()"
+                    class="px-4 py-2 rounded-lg border border-white/20 text-gray-300 text-xs font-bold hover:bg-white/5 transition flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">bar_chart</span>
+                    Statistieken
+                </button>
+            </div>
+            <div class="flex items-center gap-4">
+                <div
+                    class="px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold flex items-center gap-2 shadow-[0_0_10px_rgba(0,255,157,0.1)]">
+                    <span class="size-2 rounded-full bg-primary animate-pulse shadow-[0_0_5px_#00ff9d]"></span>
+                    Welkom, Beheerder
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD GRID -->
+        <div class="flex-1 p-6 grid grid-cols-12 gap-6 overflow-hidden z-10">
+
+            <!-- LEFT PANEL: PRACTICE LIST (Col-span-8) -->
+            <div class="col-span-8 glass-panel rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+                <div class="p-5 border-b border-white/5 flex justify-between items-center bg-white/5">
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-gray-400">Praktijkmanagement Gegevens
+                    </h2>
+                    <!-- Search/Filter -->
+                    <div class="flex gap-3">
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined absolute left-2.5 top-1.5 text-gray-500 text-sm">search</span>
+                            <input id="search-input" onkeyup="app.filterList()"
+                                class="bg-bg-input border border-white/10 rounded-lg text-sm pl-8 pr-3 py-1.5 w-64 focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-gray-600 transition-all"
+                                placeholder="Zoek praktijk, arts...">
+                        </div>
+                        <select id="filter-status" onchange="app.filterList()"
+                            class="bg-bg-input border border-white/10 rounded-lg text-sm px-3 py-1.5 focus:ring-1 focus:ring-primary focus:border-primary text-gray-300">
+                            <option value="">Alle Statussen</option>
+                            <option value="Nog niet benaderd">Niet gestart</option>
+                            <option value="Benaderd">Benaderd</option>
+                            <option value="Klant">Klant</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table Header -->
+                <div
+                    class="grid grid-cols-12 gap-4 px-6 py-3 bg-black/20 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b border-white/5">
+                    <div class="col-span-3">Praktijknaam</div>
+                    <div class="col-span-3">Lijst van artsen</div>
+                    <div class="col-span-2">RIZIV-nummers</div>
+                    <div class="col-span-2">Status</div>
+                    <div class="col-span-2">Email / Tel</div>
+                </div>
+
+                <!-- Table Body -->
+                <div class="flex-1 overflow-y-auto p-2 space-y-1" id="practices-list">
+                    <!-- Rows generated by JS -->
+                </div>
+
+                <div class="p-2 border-t border-white/5 text-center text-xs text-gray-600" id="total-counter">Laden...
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: SCRAPER & INPUT (Col-span-4) -->
+            <div class="col-span-4 glass-panel rounded-2xl flex flex-col overflow-hidden shadow-2xl relative">
+                <!-- TABS -->
+                <div class="flex border-b border-white/5 bg-white/5">
+                    <button onclick="app.switchTab('smart')" id="tab-smart"
+                        class="flex-1 py-3 text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary bg-white/5 transition-colors">Smart
+                        Invoer</button>
+                    <button onclick="app.switchTab('leads')" id="tab-leads"
+                        class="flex-1 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-colors">Leads
+                        Zoeken</button>
+                </div>
+
+                <!-- TAB CONTENT: SMART INVOER -->
+                <div id="content-smart" class="flex-1 flex flex-col overflow-hidden">
+                    <div class="p-5 flex-1 overflow-y-auto space-y-6">
+                        <!-- Smart Paste -->
+                        <div class="relative group">
+                            <div
+                                class="absolute -inset-0.5 bg-gradient-to-r from-primary to-blue-600 rounded-xl opacity-20 group-hover:opacity-50 transition blur duration-500">
+                            </div>
+                            <div class="relative bg-bg-input rounded-xl p-1 border border-white/10">
+                                <textarea id="paste-area" oninput="app.parsePaste(this.value)"
+                                    class="w-full bg-transparent border-none text-sm h-24 focus:ring-0 placeholder:text-gray-600 text-gray-300 resize-none"
+                                    placeholder="Plak gegevens hier (Ctrl+V)..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Scraper Button -->
+                        <button onclick="app.scrapeCurrent()"
+                            class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-primary text-black font-bold shadow-[0_0_20px_rgba(0,255,157,0.2)] hover:shadow-[0_0_30px_rgba(0,255,157,0.4)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2 group">
+                            <span
+                                class="material-symbols-outlined group-hover:rotate-180 transition-transform duration-500">travel_explore</span>
+                            Web Scraper Starten
+                        </button>
+
+                        <!-- Form Fields -->
+                        <div class="space-y-4">
+                            <div class="space-y-1">
+                                <span
+                                    class="text-[10px] text-gray-500 uppercase font-bold tracking-wider ml-1">Naam</span>
+                                <input id="detail-naam"
+                                    class="w-full bg-bg-input border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-700"
+                                    placeholder="Praktijknaam">
+                            </div>
+
+                            <div class="space-y-1">
+                                <span
+                                    class="text-[10px] text-gray-500 uppercase font-bold tracking-wider ml-1">Adres</span>
+                                <input id="detail-adres"
+                                    class="w-full bg-bg-input border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-700"
+                                    placeholder="Straat + Nr">
+                            </div>
+
+                            <div class="space-y-1">
+                                <span
+                                    class="text-[10px] text-gray-500 uppercase font-bold tracking-wider ml-1">RIZIV</span>
+                                <input id="detail-riziv"
+                                    class="w-full bg-bg-input border border-white/10 rounded-lg px-4 py-2.5 text-sm font-mono text-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-700"
+                                    placeholder="0-00000-00-000">
+                            </div>
+
+                            <div class="space-y-1">
+                                <span
+                                    class="text-[10px] text-gray-500 uppercase font-bold tracking-wider ml-1">Contact</span>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input id="detail-email"
+                                        class="w-full bg-bg-input border border-white/10 rounded-lg px-3 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-700"
+                                        placeholder="Email">
+                                    <input id="detail-tel"
+                                        class="w-full bg-bg-input border border-white/10 rounded-lg px-3 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-700"
+                                        placeholder="Tel">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <span
+                                    class="text-[10px] text-gray-500 uppercase font-bold tracking-wider ml-1">Gemeente</span>
+                                <input id="detail-gem"
+                                    class="w-full bg-bg-input border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-700"
+                                    placeholder="Gemeente">
+                            </div>
+
+                            <div class="space-y-1">
+                                <span
+                                    class="text-[10px] text-gray-500 uppercase font-bold tracking-wider ml-1">Status</span>
+                                <select id="detail-status"
+                                    class="w-full bg-bg-input border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-300">
+                                    <option value="Nog niet benaderd">⚪ Nog niet benaderd</option>
+                                    <option value="Benaderd">🔵 Benaderd</option>
+                                    <option value="Klant">🟢 Klant</option>
+                                    <option value="Geen interesse">🔴 Geen interesse</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Hidden fields -->
+                        <input type="hidden" id="detail-id">
+                        <input type="hidden" id="detail-praktijk">
+                        <input type="hidden" id="detail-notitie">
+                        <input type="hidden" id="detail-prio">
+                        <input type="hidden" id="detail-artsen">
+                        <input type="hidden" id="detail-status-artsen">
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="p-5 border-t border-white/5 flex gap-3 bg-black/20">
+                        <button onclick="app.clearForm()"
+                            class="px-4 py-2 rounded-lg border border-white/10 text-gray-400 text-sm font-bold hover:bg-white/5 transition hover:text-white">Nieuw</button>
+                        <button onclick="app.saveOrUpdate()"
+                            class="flex-1 px-6 py-2 rounded-lg bg-primary/10 border border-primary/50 text-primary text-sm font-bold hover:bg-primary/20 transition shadow-[0_0_10px_rgba(0,255,157,0.1)]">Opslaan</button>
+                    </div>
+                </div>
+
+                <!-- TAB CONTENT: LEADS ZOEKEN -->
+                <div id="content-leads" class="hidden flex-1 flex flex-col overflow-hidden">
+                    <div class="p-5 border-b border-white/5 space-y-3">
+                        <p class="text-xs text-gray-400">Zoek naar huisartsen in een specifieke regio via OpenStreetMap.
+                        </p>
+                        <div class="flex gap-2">
+                            <input id="lead-search-gem"
+                                class="flex-1 bg-bg-input border border-white/10 rounded-lg px-4 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
+                                placeholder="Bijv. Hasselt">
+                            <button onclick="app.searchLeads()"
+                                class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 transition">Zoeken</button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-2 space-y-1" id="leads-list">
+                        <div class="text-center text-gray-600 text-xs mt-10">Zoekresultaten verschijnen hier...</div>
+                    </div>
+
+                    <div class="p-5 border-t border-white/5 bg-black/20">
+                        <button onclick="app.addSelectedLeads()"
+                            class="w-full px-6 py-3 rounded-lg bg-primary text-black text-sm font-bold hover:bg-emerald-400 transition shadow-lg">Selectie
+                            Toevoegen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const app = {
+            data: [],
+
+            init: async function () {
+                try {
+                    const response = await fetch('/api/practices');
+                    this.data = await response.json();
+                } catch (e) {
+                    console.error("Kon data niet laden", e);
+                    this.data = [];
+                }
+                this.renderList(this.data);
+            },
+
+            filterList: function () {
+                const search = document.getElementById('search-input').value.toLowerCase();
+                const status = document.getElementById('filter-status').value;
+
+                const filtered = this.data.filter(item => {
+                    const matchSearch =
+                        item.naam.toLowerCase().includes(search) ||
+                        (item.email && item.email.toLowerCase().includes(search)) ||
+                        (item.artsen_namen && item.artsen_namen.toLowerCase().includes(search));
+
+                    const matchStatus = status === "" || item.status === status;
+                    return matchSearch && matchStatus;
+                });
+
+                this.renderList(filtered);
+            },
+
+            renderList: function (items) {
+                const list = document.getElementById('practices-list');
+                const counter = document.getElementById('total-counter');
+                list.innerHTML = '';
+                counter.innerText = `${items.length} praktijken geladen`;
+
+                items.forEach(item => {
+                    let statusColor = "text-gray-400";
+                    let statusIcon = "radio_button_unchecked";
+
+                    if (item.status.includes('Klant')) { statusColor = "text-green-400"; statusIcon = "check_circle"; }
+                    else if (item.status.includes('Benaderd')) { statusColor = "text-blue-400"; statusIcon = "schedule"; }
+                    else if (item.status.includes('Geen')) { statusColor = "text-red-400"; statusIcon = "cancel"; }
+                    else if (item.status.includes('Opvolging')) { statusColor = "text-yellow-400"; statusIcon = "error"; }
+
+                    const div = document.createElement('div');
+                    div.className = "grid grid-cols-12 gap-4 px-6 py-3 items-center hover:bg-white/5 transition cursor-pointer rounded-lg group border border-transparent hover:border-white/5";
+                    div.onclick = () => { this.selectItem(item.nr); };
+
+                    div.innerHTML = `
+                        <div class="col-span-3">
+                            <div class="font-medium text-sm text-gray-200 group-hover:text-white truncate">${item.naam}</div>
+                            <div class="text-[10px] text-gray-500 truncate">${item.adres || ''}</div>
+                        </div>
+                        <div class="col-span-3 text-xs text-gray-500 truncate">${item.artsen_namen || '-'}</div>
+                        <div class="col-span-2 text-xs font-mono text-gray-600 truncate">${item.riziv || '-'}</div>
+                        <div class="col-span-2 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[16px] ${statusColor}">${statusIcon}</span>
+                            <span class="text-xs ${statusColor} font-bold">${item.status}</span>
+                        </div>
+                        <div class="col-span-2 text-xs text-gray-500 truncate">${item.email || item.tel || '-'}</div>
+                    `;
+                    list.appendChild(div);
+                });
+            },
+
+            selectItem: function (id) {
+                const item = this.data.find(d => d.nr === id);
+                if (!item) return;
+
+                // Switch to smart tab to show details
+                this.switchTab('smart');
+
+                document.getElementById('detail-id').value = item.nr;
+                document.getElementById('detail-naam').value = item.naam;
+                document.getElementById('detail-praktijk').value = item.praktijk;
+                document.getElementById('detail-gem').value = item.gem;
+                document.getElementById('detail-adres').value = item.adres || '';
+                document.getElementById('detail-email').value = item.email || '';
+                document.getElementById('detail-tel').value = item.tel || '';
+                document.getElementById('detail-notitie').value = item.notitie || '';
+                document.getElementById('detail-status').value = item.status;
+                document.getElementById('detail-prio').value = item.invloed;
+                document.getElementById('detail-artsen').value = item.artsen_namen || '';
+                document.getElementById('detail-riziv').value = item.riziv || '';
+                document.getElementById('detail-status-artsen').value = item.status_per_arts || '';
+            },
+
+            clearForm: function () {
+                document.getElementById('detail-id').value = "";
+                document.getElementById('detail-naam').value = "";
+                document.getElementById('detail-praktijk').value = "";
+                document.getElementById('detail-gem').value = "";
+                document.getElementById('detail-adres').value = "";
+                document.getElementById('detail-email').value = "";
+                document.getElementById('detail-tel').value = "";
+                document.getElementById('detail-notitie').value = "";
+                document.getElementById('detail-status').value = "Nog niet benaderd";
+                document.getElementById('detail-prio').value = "Midden";
+                document.getElementById('detail-artsen').value = "";
+                document.getElementById('detail-riziv').value = "";
+                document.getElementById('detail-status-artsen').value = "";
+                document.getElementById('paste-area').value = "";
+            },
+
+            saveOrUpdate: function () {
+                const idStr = document.getElementById('detail-id').value;
+
+                if (idStr) {
+                    // Update existing
+                    const id = parseInt(idStr);
+                    const item = this.data.find(d => d.nr === id);
+                    if (item) {
+                        this.updateItemData(item);
+                        // Here you would typically call API to save
+                        this.saveToServer(item);
+                    }
+                } else {
+                    // Create new
+                    const maxNr = this.data.length > 0 ? Math.max(...this.data.map(i => i.nr)) : 0;
+                    const newItem = { nr: maxNr + 1 };
+                    this.updateItemData(newItem);
+                    this.data.push(newItem);
+                    this.saveToServer(newItem); // Assuming API handles new items
+                }
+
+                this.renderList(this.data);
+                alert("Gegevens opgeslagen!");
+            },
+
+            updateItemData: function (item) {
+                item.naam = document.getElementById('detail-naam').value || "Nieuwe Praktijk";
+                item.praktijk = document.getElementById('detail-praktijk').value || item.naam;
+                item.gem = document.getElementById('detail-gem').value || "Onbekend";
+                item.adres = document.getElementById('detail-adres').value;
+                item.email = document.getElementById('detail-email').value;
+                item.tel = document.getElementById('detail-tel').value;
+                item.notitie = document.getElementById('detail-notitie').value;
+                item.status = document.getElementById('detail-status').value;
+                item.invloed = document.getElementById('detail-prio').value || "Midden";
+                item.artsen_namen = document.getElementById('detail-artsen').value;
+                item.riziv = document.getElementById('detail-riziv').value;
+                item.status_per_arts = document.getElementById('detail-status-artsen').value;
+            },
+
+            // --- TABS & LEADS ---
+            switchTab: function (tabName) {
+                // Reset styles
+                document.getElementById('tab-smart').className = "flex-1 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-colors";
+                document.getElementById('tab-leads').className = "flex-1 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 border-b-2 border-transparent hover:text-gray-300 transition-colors";
+                document.getElementById('content-smart').classList.add('hidden');
+                document.getElementById('content-leads').classList.add('hidden');
+
+                // Activate selected
+                document.getElementById(`tab-${tabName}`).className = "flex-1 py-3 text-xs font-bold uppercase tracking-widest text-primary border-b-2 border-primary bg-white/5 transition-colors";
+                document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            },
+
+            searchLeads: async function () {
+                const gem = document.getElementById('lead-search-gem').value;
+                if (!gem) return alert("Vul een gemeente in.");
+
+                const list = document.getElementById('leads-list');
+                list.innerHTML = '<div class="text-center text-primary animate-pulse mt-10">Zoeken op kaart...</div>';
+
+                try {
+                    const response = await fetch('/api/leads', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ gemeente: gem })
+                    });
+                    const leads = await response.json();
+
+                    list.innerHTML = '';
+                    if (leads.length === 0) {
+                        list.innerHTML = '<div class="text-center text-gray-500 mt-10">Geen resultaten gevonden.</div>';
+                        return;
+                    }
+
+                    leads.forEach((lead, index) => {
+                        const div = document.createElement('div');
+                        div.className = "flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 border border-white/5";
+
+                        // Extra info badges
+                        let badges = '';
+                        if (lead.tel) badges += `<span class="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded mr-1">Tel</span>`;
+                        if (lead.website) badges += `<span class="text-[10px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">Web</span>`;
+
+                        div.innerHTML = `
+                            <input type="checkbox" id="lead-${index}" class="mt-1 rounded border-gray-600 text-primary focus:ring-primary bg-bg-input">
+                            <label for="lead-${index}" class="flex-1 cursor-pointer">
+                                <div class="font-bold text-sm text-gray-200">${lead.naam}</div>
+                                <div class="text-xs text-gray-500">${lead.adres}</div>
+                                <div class="mt-1">${badges}</div>
+                            </label>
+                        `;
+                        // Store full object on element for easy retrieval
+                        div.dataset.lead = JSON.stringify(lead);
+                        list.appendChild(div);
+                    });
+
+                } catch (e) {
+                    console.error(e);
+                    list.innerHTML = '<div class="text-center text-red-400 mt-10">Fout bij zoeken.</div>';
+                }
+            },
+
+            addSelectedLeads: function () {
+                const list = document.getElementById('leads-list');
+                const checkboxes = list.querySelectorAll('input[type="checkbox"]:checked');
+
+                if (checkboxes.length === 0) return alert("Selecteer minstens één praktijk.");
+
+                let count = 0;
+                checkboxes.forEach(cb => {
+                    const parent = cb.closest('div');
+                    const lead = JSON.parse(parent.dataset.lead);
+
+                    // Check duplicates based on name + city
+                    const exists = this.data.some(d => d.naam === lead.naam && d.gem === lead.gem);
+                    if (!exists) {
+                        const maxNr = this.data.length > 0 ? Math.max(...this.data.map(i => i.nr)) : 0;
+                        const newItem = {
+                            nr: maxNr + 1 + count, // Temporary ID increment
+                            naam: lead.naam,
+                            praktijk: lead.praktijk,
+                            adres: lead.adres,
+                            gem: lead.gem,
+                            status: "Nog niet benaderd",
+                            invloed: "Midden",
+                            email: "",
+                            tel: lead.tel || "", // Use found phone
+                            notitie: lead.website ? `Website: ${lead.website}` : "", // Use found website
+                            artsen_namen: "",
+                            riziv: ""
+                        };
+                        this.data.push(newItem);
+                        count++;
+                    }
+                });
+
+                if (count > 0) {
+                    this.saveToServer(); // Save all data
+                    this.renderList(this.data);
+                    alert(`${count} praktijken toegevoegd aan je lijst!`);
+                    this.switchTab('smart'); // Go back to main view
+                } else {
+                    alert("Geen nieuwe praktijken toegevoegd (mogelijk dubbels).");
+                }
+            },
+
+            saveToServer: async function (item) {
+                try {
+                    await fetch('/api/practices', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(this.data)
+                    });
+                } catch (e) {
+                    console.error("Save failed", e);
+                }
+            },
+
+            parsePaste: function (text) {
+                if (!text) return;
+                const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+                // Simple heuristics
+                if (lines.length > 0) document.getElementById('detail-naam').value = lines[0];
+
+                const phoneMatch = text.match(/(?:0|32)\s?[\d\s\.]{8,15}/);
+                if (phoneMatch) document.getElementById('detail-tel').value = phoneMatch[0].trim();
+
+                const emailMatch = text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/);
+                if (emailMatch) document.getElementById('detail-email').value = emailMatch[0];
+
+                const addressMatch = text.match(/([a-zA-Z\s\.]+)\s\d+[a-z]?,\s(\d{4})\s([a-zA-Z-]+)/) || text.match(/(\d{4})\s([a-zA-Z-]+)/);
+                if (addressMatch) {
+                    const city = addressMatch[addressMatch.length - 1];
+                    if (city) document.getElementById('detail-gem').value = city.trim();
+                }
+            },
+
+            scrapeCurrent: async function () {
+                const naam = document.getElementById('detail-naam').value;
+                const gem = document.getElementById('detail-gem').value;
+
+                if (!naam || !gem) return alert("Naam en Gemeente zijn nodig om te zoeken.");
+
+                const btn = event.currentTarget;
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Bezig...';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/scrape', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ naam, gemeente: gem })
+                    });
+                    const result = await response.json();
+
+                    if (result.error) {
+                        alert("Fout: " + result.error);
+                    } else {
+                        let msg = "Gevonden:\n";
+
+                        if (result.website && result.website !== "Niet gevonden") {
+                            const noteField = document.getElementById('detail-notitie');
+                            if (!noteField.value.includes(result.website)) {
+                                noteField.value = `Website: ${result.website}\n` + noteField.value;
+                            }
+                            msg += `Website: ${result.website}\n`;
+                        }
+                        if (result.email && result.email !== "Geen email") {
+                            document.getElementById('detail-email').value = result.email;
+                            msg += `Email: ${result.email}\n`;
+                        }
+                        if (result.tel) {
+                            document.getElementById('detail-tel').value = result.tel;
+                            msg += `Tel: ${result.tel}\n`;
+                        }
+                        if (result.riziv) {
+                            document.getElementById('detail-riziv').value = result.riziv;
+                            msg += `RIZIV: ${result.riziv}\n`;
+                        }
+                        if (result.artsen) {
+                            document.getElementById('detail-artsen').value = result.artsen;
+                            msg += `Artsen: ${result.artsen}\n`;
+                        }
+
+                        alert(msg);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Er ging iets mis bij het scrapen.");
+                } finally {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }
+            },
+
+            startCampaign: async function () {
+                if (!confirm("Start de email campagne? Dit verstuurt emails naar alle geselecteerde praktijken die nog niet benaderd zijn.")) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/campaign/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const result = await response.json();
+
+                    alert(`✅ Campagne gestart!\n\n${result.emails_sent} emails verzonden (simulatie).`);
+                    this.init(); // Refresh data
+
+                } catch (e) {
+                    console.error(e);
+                    alert("❌ Fout bij starten campagne");
+                }
+            },
+
+            showStats: async function () {
+                try {
+                    const response = await fetch('/api/campaign/stats');
+                    const stats = await response.json();
+
+                    alert(`📊 Campagne Statistieken\n\n` +
+                        `Totaal praktijken: ${stats.total_practices}\n` +
+                        `Niet benaderd: ${stats.not_contacted}\n` +
+                        `Benaderd: ${stats.contacted}\n` +
+                        `Klanten: ${stats.clients}\n` +
+                        `Emails verstuurd: ${stats.total_emails_sent}\n` +
+                        `Reacties: ${stats.replied}`);
+
+                } catch (e) {
+                    console.error(e);
+                    alert("❌ Fout bij ophalen statistieken");
+                }
+            }
+        };
+
+        // Start App
+        app.init();
+    </script>
+</body>
+
+</html>
