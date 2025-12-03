@@ -64,6 +64,19 @@ def update_practice(practice_id):
     return jsonify({'error': 'Failed to update practice'}), 500
 
 
+@practices_bp.route('/practices/<int:practice_id>', methods=['DELETE'])
+def delete_practice(practice_id):
+    """Delete practice"""
+    practice = db.get_practice(practice_id)
+    if not practice:
+        return jsonify({'error': 'Practice not found'}), 404
+    
+    success = db.delete_practice(practice_id)
+    if success:
+        return jsonify({'status': 'success', 'message': 'Practice deleted'})
+    return jsonify({'error': 'Failed to delete practice'}), 500
+
+
 @practices_bp.route('/practices/<int:practice_id>/mark-replied', methods=['POST'])
 def mark_replied(practice_id):
     """Mark practice as replied"""

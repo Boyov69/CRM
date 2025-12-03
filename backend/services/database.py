@@ -132,3 +132,31 @@ class DatabaseService:
         except Exception as e:
             logger.error(f"JSON bulk save error: {e}")
             return False
+    
+    def delete_practice(self, practice_id: int) -> bool:
+        """Delete a practice"""
+        if self.supabase_client:
+            try:
+                self.supabase_client.table('practices').delete().eq('nr', practice_id).execute()
+                logger.info(f"Deleted practice {practice_id} from Supabase")
+                return True
+            except Exception as e:
+                logger.error(f"Supabase delete error: {e}")
+        
+        # Fallback to JSON
+        try:
+            practices = self._load_from_json()
+            original_count = len(practices)
+            practices = [p for p in practices if p.get('nr') != practice_id]
+            
+            if len(practices) < original_count:
+                with open(self.data_file, 'w') as f:
+                    json.dump(practices, f, indent=2)
+                logger.info(f"Deleted practice {practice_id} from JSON")
+                return True
+            else:
+                logger.warning(f"Practice {practice_id} not found for deletion")
+                return False
+        except Exception as e:
+            logger.error(f"JSON delete error: {e}")
+            return False
