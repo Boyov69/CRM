@@ -9,7 +9,7 @@ from backend.services.database import get_practice_by_id
 
 logger = logging.getLogger(__name__)
 
-inbox_bp = Blueprint('inbox', __name__, url_prefix='/api/inbox')
+inbox_bp = Blueprint('inbox', __name__)
 inbox_service = InboxService()
 
 
