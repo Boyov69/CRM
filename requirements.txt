@@ -11,4 +11,4 @@ python-dotenv
 APScheduler
 supabase
 gunicorn
-flask-cors
+twilio>=8.10.0
