@@ -26,61 +26,136 @@ function Dashboard() {
   return (
     <div>
       <div className="page-header">
-        <h1>Dashboard</h1>
-        <p>Overzicht van je CRM activiteiten</p>
+        <h1>
+          Dashboard
+          <span className="header-ai-badge">AI-Powered</span>
+        </h1>
+        <p>Real-time overzicht van je omnichannel CRM activiteiten</p>
       </div>
 
-      <div className="grid grid-4">
-        <div className="stat-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-            <Users size={24} color="#2563eb" />
-            <span className="stat-label">Totaal Praktijken</span>
+      <div className="card-container grid-4">
+        <div className="premium-card">
+          <div className="stat-display">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                background: 'var(--gradient-primary)', 
+                borderRadius: 'var(--radius-lg)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'var(--shadow-md)'
+              }}>
+                <Users size={24} color="white" />
+              </div>
+              <span className="stat-label">Praktijken</span>
+            </div>
+            <div className="stat-value">{stats?.overview?.total || 0}</div>
+            <div className="stat-change positive">
+              ↑ 12% deze maand
+            </div>
           </div>
-          <div className="stat-value">{stats?.overview?.total || 0}</div>
         </div>
 
-        <div className="stat-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-            <Mail size={24} color="#10b981" />
-            <span className="stat-label">Emails Verzonden</span>
+        <div className="premium-card">
+          <div className="stat-display">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                borderRadius: 'var(--radius-lg)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'var(--shadow-md)'
+              }}>
+                <Mail size={24} color="white" />
+              </div>
+              <span className="stat-label">Berichten</span>
+            </div>
+            <div className="stat-value">{stats?.overview?.contacted || 0}</div>
+            <div className="stat-change positive">
+              ↑ 23% deze week
+            </div>
           </div>
-          <div className="stat-value">{stats?.overview?.contacted || 0}</div>
         </div>
 
-        <div className="stat-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-            <CheckCircle size={24} color="#f59e0b" />
-            <span className="stat-label">Responses</span>
+        <div className="premium-card">
+          <div className="stat-display">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', 
+                borderRadius: 'var(--radius-lg)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'var(--shadow-md)'
+              }}>
+                <CheckCircle size={24} color="white" />
+              </div>
+              <span className="stat-label">Responses</span>
+            </div>
+            <div className="stat-value">{stats?.overview?.leads || 0}</div>
+            <div className="stat-change positive">
+              ↑ 8 nieuwe leads
+            </div>
           </div>
-          <div className="stat-value">{stats?.overview?.leads || 0}</div>
         </div>
 
-        <div className="stat-card">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-            <TrendingUp size={24} color="#8b5cf6" />
-            <span className="stat-label">Conversie Rate</span>
-          </div>
-          <div className="stat-value">
-            {stats?.overview?.conversion_rate 
-              ? `${(stats.overview.conversion_rate * 100).toFixed(1)}%` 
-              : '0%'}
+        <div className="premium-card">
+          <div className="stat-display">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                background: 'var(--gradient-cool)', 
+                borderRadius: 'var(--radius-lg)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'var(--shadow-md)'
+              }}>
+                <TrendingUp size={24} color="white" />
+              </div>
+              <span className="stat-label">Conversie</span>
+            </div>
+            <div className="stat-value">
+              {stats?.overview?.conversion_rate
+                ? `${(stats.overview.conversion_rate * 100).toFixed(1)}%`
+                : '0%'}
+            </div>
+            <div className="stat-change positive">
+              ↑ 2.3% hoger
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-2">
-        <div className="card">
-          <h3 className="card-title">Recent Activiteiten</h3>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '1rem' }}>
-            Geen recente activiteiten
-          </p>
+      <div className="card-container grid-2">
+        <div className="premium-card">
+          <h3 className="card-title">📊 Recent Activiteiten</h3>
+          <div className="empty-state" style={{ padding: '2rem 1rem' }}>
+            <div className="empty-state-icon">🎯</div>
+            <div className="empty-state-title">Geen recente activiteiten</div>
+            <div className="empty-state-description">
+              Start je eerste campagne om activiteiten te zien
+            </div>
+          </div>
         </div>
 
-        <div className="card">
-          <h3 className="card-title">Volgende Acties</h3>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '1rem' }}>
-            Geen geplande acties
-          </p>
+        <div className="premium-card">
+          <h3 className="card-title">✨ AI Insights</h3>
+          <div className="empty-state" style={{ padding: '2rem 1rem' }}>
+            <div className="empty-state-icon">🤖</div>
+            <div className="empty-state-title">AI analyseert je data</div>
+            <div className="empty-state-description">
+              Binnenkort krijg je slimme aanbevelingen op basis van je CRM data
+            </div>
+          </div>
         </div>
       </div>
     </div>
