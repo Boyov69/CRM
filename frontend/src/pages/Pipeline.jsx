@@ -1,13 +1,119 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { TrendingUp, AlertCircle, Zap } from 'lucide-react'
+
+// Sortable deal card component
+function DealCard({ practice, stage }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: practice.nr })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    background: isDragging ? 'white' : '#ffffff',
+    padding: '0.75rem',
+    marginBottom: '0.75rem',
+    borderRadius: '0.5rem',
+    border: '1px solid #e5e7eb',
+    boxShadow: isDragging
+      ? '0 10px 30px rgba(0,0,0,0.15)'
+      : '0 1px 3px rgba(0,0,0,0.1)',
+    cursor: 'grab',
+  }
+
+  const getDealValue = () => practice.pipeline?.deal_value || 0
+  const getProbability = () => practice.pipeline?.probability || 0
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div style={{ marginBottom: '0.5rem' }}>
+        <div style={{
+          fontWeight: '600',
+          fontSize: '0.875rem',
+          marginBottom: '0.25rem'
+        }}>
+          {practice.naam}
+        </div>
+        <div style={{
+          fontSize: '0.75rem',
+          color: '#6b7280'
+        }}>
+          {practice.gemeente}
+        </div>
+      </div>
+
+      {/* Score Badge */}
+      {practice.score && (
+        <div style={{
+          display: 'inline-block',
+          padding: '0.25rem 0.5rem',
+          borderRadius: '0.25rem',
+          fontSize: '0.75rem',
+          fontWeight: '600',
+          background: practice.score.category === 'hot' ? '#fee2e2' :
+                    practice.score.category === 'warm' ? '#fef3c7' : '#e0e7ff',
+          color: practice.score.category === 'hot' ? '#991b1b' :
+                 practice.score.category === 'warm' ? '#92400e' : '#3730a3'
+        }}>
+          🔥 {practice.score.total_score}
+        </div>
+      )}
+
+      {/* Deal Value */}
+      {getDealValue() > 0 && (
+        <div style={{
+          marginTop: '0.5rem',
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          color: '#059669'
+        }}>
+          €{getDealValue().toLocaleString()}
+          <span style={{
+            marginLeft: '0.25rem',
+            fontSize: '0.75rem',
+            color: '#6b7280'
+          }}>
+            ({getProbability()}%)
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function Pipeline() {
   const [stages, setStages] = useState([])
   const [deals, setDeals] = useState({})
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [activeId, setActiveId] = useState(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  )
 
   useEffect(() => {
     fetchPipelineData()
@@ -36,35 +142,50 @@ function Pipeline() {
     }
   }
 
-  const onDragEnd = async (result) => {
-    if (!result.destination) return
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id)
+  }
 
-    const { source, destination, draggableId } = result
+  const handleDragEnd = async (event) => {
+    const { active, over } = event
+    
+    if (!over) {
+      setActiveId(null)
+      return
+    }
 
-    // If dropped in same position, do nothing
-    if (source.droppableId === destination.droppableId) return
+    // Find which stage the deal is being dropped into
+    const targetStage = over.id
+
+    // Find the practice being dragged
+    let sourcePractice = null
+    let sourceStage = null
+    
+    for (const [stageId, practices] of Object.entries(deals)) {
+      const found = practices.find(p => p.nr === active.id)
+      if (found) {
+        sourcePractice = found
+        sourceStage = stageId
+        break
+      }
+    }
+
+    if (!sourcePractice || sourceStage === targetStage) {
+      setActiveId(null)
+      return
+    }
 
     try {
-      // Move deal in UI first (optimistic update)
+      // Optimistic UI update
       const newDeals = { ...deals }
-      const practice = newDeals[source.droppableId].find(
-        p => p.nr.toString() === draggableId
-      )
-      
-      newDeals[source.droppableId] = newDeals[source.droppableId].filter(
-        p => p.nr.toString() !== draggableId
-      )
-      newDeals[destination.droppableId] = [
-        ...newDeals[destination.droppableId],
-        practice
-      ]
-      
+      newDeals[sourceStage] = newDeals[sourceStage].filter(p => p.nr !== active.id)
+      newDeals[targetStage] = [...(newDeals[targetStage] || []), sourcePractice]
       setDeals(newDeals)
 
-      // Update on backend
+      // Update backend
       await axios.post('/api/pipeline/move', {
-        practice_id: parseInt(draggableId),
-        to_stage: destination.droppableId,
+        practice_id: sourcePractice.nr,
+        to_stage: targetStage,
         reason: 'Moved via drag & drop'
       })
 
@@ -74,17 +195,10 @@ function Pipeline() {
       
     } catch (error) {
       console.error('Error moving deal:', error)
-      // Revert on error
-      fetchPipelineData()
+      fetchPipelineData() // Revert on error
     }
-  }
-
-  const getDealValue = (practice) => {
-    return practice.pipeline?.deal_value || 0
-  }
-
-  const getProbability = (practice) => {
-    return practice.pipeline?.probability || 0
+    
+    setActiveId(null)
   }
 
   if (loading) return <div>Loading pipeline...</div>
@@ -143,7 +257,12 @@ function Pipeline() {
       )}
 
       {/* Kanban Board */}
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
         <div style={{
           display: 'flex',
           gap: '1rem',
@@ -151,148 +270,71 @@ function Pipeline() {
           paddingBottom: '1rem'
         }}>
           {stages.filter(s => s.id !== 'won' && s.id !== 'lost').map(stage => (
-            <Droppable key={stage.id} droppableId={stage.id}>
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  style={{
-                    background: snapshot.isDraggingOver ? '#f0f9ff' : '#f9fafb',
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    minWidth: '280px',
-                    maxWidth: '280px',
-                    border: '2px solid',
-                    borderColor: snapshot.isDraggingOver ? stage.color : '#e5e7eb'
-                  }}
-                >
-                  {/* Stage Header */}
+            <SortableContext
+              key={stage.id}
+              id={stage.id}
+              items={deals[stage.id]?.map(p => p.nr) || []}
+              strategy={verticalListSortingStrategy}
+            >
+              <div
+                style={{
+                  background: '#f9fafb',
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  minWidth: '280px',
+                  maxWidth: '280px',
+                  border: '2px solid #e5e7eb'
+                }}
+              >
+                {/* Stage Header */}
+                <div style={{
+                  marginBottom: '1rem',
+                  paddingBottom: '0.75rem',
+                  borderBottom: `3px solid ${stage.color}`
+                }}>
                   <div style={{
-                    marginBottom: '1rem',
-                    paddingBottom: '0.75rem',
-                    borderBottom: `3px solid ${stage.color}`
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '0.25rem'
                   }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: '0.25rem'
+                    <h3 style={{
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      color: stage.color
                     }}>
-                      <h3 style={{
-                        fontSize: '0.875rem',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        color: stage.color
-                      }}>
-                        {stage.name}
-                      </h3>
-                      <span style={{
-                        background: stage.color,
-                        color: 'white',
-                        padding: '0.125rem 0.5rem',
-                        borderRadius: '999px',
-                        fontSize: '0.75rem',
-                        fontWeight: '600'
-                      }}>
-                        {deals[stage.id]?.length || 0}
-                      </span>
+                      {stage.name}
+                    </h3>
+                    <span style={{
+                      background: stage.color,
+                      color: 'white',
+                      padding: '0.125rem 0.5rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600'
+                    }}>
+                      {deals[stage.id]?.length || 0}
+                    </span>
+                  </div>
+                  {summary && summary.stages[stage.id] && (
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                      €{summary.stages[stage.id].value.toLocaleString()}
                     </div>
-                    {summary && summary.stages[stage.id] && (
-                      <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                        €{summary.stages[stage.id].value.toLocaleString()}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Deal Cards */}
-                  <div style={{ minHeight: '100px' }}>
-                    {deals[stage.id]?.map((practice, index) => (
-                      <Draggable
-                        key={practice.nr}
-                        draggableId={practice.nr.toString()}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            style={{
-                              ...provided.draggableProps.style,
-                              background: snapshot.isDragging ? 'white' : '#ffffff',
-                              padding: '0.75rem',
-                              marginBottom: '0.75rem',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #e5e7eb',
-                              boxShadow: snapshot.isDragging
-                                ? '0 10px 30px rgba(0,0,0,0.15)'
-                                : '0 1px 3px rgba(0,0,0,0.1)',
-                              cursor: 'grab'
-                            }}
-                          >
-                            <div style={{ marginBottom: '0.5rem' }}>
-                              <div style={{
-                                fontWeight: '600',
-                                fontSize: '0.875rem',
-                                marginBottom: '0.25rem'
-                              }}>
-                                {practice.naam}
-                              </div>
-                              <div style={{
-                                fontSize: '0.75rem',
-                                color: '#6b7280'
-                              }}>
-                                {practice.gemeente}
-                              </div>
-                            </div>
-
-                            {/* Score Badge */}
-                            {practice.score && (
-                              <div style={{
-                                display: 'inline-block',
-                                padding: '0.25rem 0.5rem',
-                                borderRadius: '0.25rem',
-                                fontSize: '0.75rem',
-                                fontWeight: '600',
-                                background: practice.score.category === 'hot' ? '#fee2e2' :
-                                          practice.score.category === 'warm' ? '#fef3c7' : '#e0e7ff',
-                                color: practice.score.category === 'hot' ? '#991b1b' :
-                                       practice.score.category === 'warm' ? '#92400e' : '#3730a3'
-                              }}>
-                                🔥 {practice.score.total_score}
-                              </div>
-                            )}
-
-                            {/* Deal Value */}
-                            {getDealValue(practice) > 0 && (
-                              <div style={{
-                                marginTop: '0.5rem',
-                                fontSize: '0.875rem',
-                                fontWeight: '600',
-                                color: '#059669'
-                              }}>
-                                €{getDealValue(practice).toLocaleString()}
-                                <span style={{
-                                  marginLeft: '0.25rem',
-                                  fontSize: '0.75rem',
-                                  color: '#6b7280'
-                                }}>
-                                  ({getProbability(practice)}%)
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
+                  )}
                 </div>
-              )}
-            </Droppable>
+
+                {/* Deal Cards */}
+                <div style={{ minHeight: '100px' }}>
+                  {deals[stage.id]?.map((practice) => (
+                    <DealCard key={practice.nr} practice={practice} stage={stage} />
+                  ))}
+                </div>
+              </div>
+            </SortableContext>
           ))}
         </div>
-      </DragDropContext>
+      </DndContext>
 
       {/* Won/Lost Section */}
       <div className="grid grid-2" style={{ marginTop: '2rem' }}>
