@@ -50,6 +50,21 @@ def index():
 @app.route('/api/practices', methods=['GET'])
 def get_practices():
     data = db.get_practices() # Use Supabase to get practices
+    
+    # Normalize data for frontend
+    for p in data:
+        # Map 'gem' to 'gemeente' if missing
+        if 'gemeente' not in p and 'gem' in p:
+            p['gemeente'] = p['gem']
+            
+        # Ensure 'naam' uses 'praktijk' if available and 'naam' is generic or missing
+        if 'praktijk' in p and (not p.get('naam') or p.get('naam') == 'Team'):
+            p['naam'] = p['praktijk']
+            
+        # Map 'notitie' to 'adres' if 'adres' is missing (heuristic)
+        if 'adres' not in p and 'notitie' in p:
+            p['adres'] = p['notitie']
+            
     return jsonify(data)
 
 @app.route('/api/practices', methods=['POST'])
@@ -188,9 +203,13 @@ def start_campaign():
 def get_campaign_stats():
     """Haal campagne statistieken op"""
     data = db.get_practices()
+    print(f"DEBUG: get_campaign_stats loaded {len(data)} practices")
+    
     analytics = CRMAnalytics(data)
     
     stats = analytics.get_overview_stats()
+    print(f"DEBUG: get_campaign_stats stats: {stats}")
+    
     funnel = analytics.get_funnel_analysis()
     roi = analytics.get_roi_projection()
     
