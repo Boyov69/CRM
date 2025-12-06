@@ -5,35 +5,53 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+import json
+import os
+
 class SupabaseDB:
     """
-    Wrapper voor Supabase interacties
+    Wrapper voor Supabase interacties met JSON fallback
     """
     
     def __init__(self):
         self.url = Config.SUPABASE_URL
         self.key = Config.SUPABASE_KEY
         self.client: Client = None
+        self.data_file = Config.DATA_FILE
         
-        if self.url and self.key:
+        # Check for placeholder credentials
+        if self.url and self.key and "your-project" not in self.url:
             try:
                 self.client = create_client(self.url, self.key)
                 logger.info("Supabase client initialized")
             except Exception as e:
                 logger.error(f"Failed to initialize Supabase client: {e}")
+                self.client = None
         else:
-            logger.warning("Supabase credentials missing")
+            logger.warning("Supabase credentials missing or placeholders")
+            self.client = None
+
+    def _load_from_json(self):
+        """Load practices from JSON file"""
+        if os.path.exists(self.data_file):
+            try:
+                with open(self.data_file, 'r') as f:
+                    return json.load(f)
+            except Exception as e:
+                logger.error(f"JSON load error: {e}")
+        return []
 
     def get_practices(self):
         """Haal alle practices op"""
-        if not self.client: return []
+        if self.client:
+            try:
+                response = self.client.table('practices').select("*").execute()
+                return response.data
+            except Exception as e:
+                logger.error(f"Supabase fetch error: {e}")
         
-        try:
-            response = self.client.table('practices').select("*").execute()
-            return response.data
-        except Exception as e:
-            logger.error(f"Supabase fetch error: {e}")
-            return []
+        # Fallback to JSON
+        return self._load_from_json()
 
     def get_practice(self, practice_id):
         """Haal specifieke practice op"""

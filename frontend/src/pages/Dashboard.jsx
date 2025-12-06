@@ -12,7 +12,7 @@ function Dashboard() {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get('/api/campaigns/stats')
+      const response = await axios.get('/api/campaign/stats')
       setStats(response.data)
       setLoading(false)
     } catch (error) {
@@ -37,10 +37,10 @@ function Dashboard() {
         <div className="premium-card">
           <div className="stat-display">
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{ 
-                width: '48px', 
-                height: '48px', 
-                background: 'var(--gradient-primary)', 
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'var(--gradient-primary)',
                 borderRadius: 'var(--radius-lg)',
                 display: 'flex',
                 alignItems: 'center',
@@ -51,7 +51,7 @@ function Dashboard() {
               </div>
               <span className="stat-label">Praktijken</span>
             </div>
-            <div className="stat-value">{stats?.overview?.total || 0}</div>
+            <div className="stat-value">{stats?.overview?.total_practices || 0}</div>
             <div className="stat-change positive">
               ↑ 12% deze maand
             </div>
@@ -61,10 +61,10 @@ function Dashboard() {
         <div className="premium-card">
           <div className="stat-display">
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{ 
-                width: '48px', 
-                height: '48px', 
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 borderRadius: 'var(--radius-lg)',
                 display: 'flex',
                 alignItems: 'center',
@@ -85,10 +85,10 @@ function Dashboard() {
         <div className="premium-card">
           <div className="stat-display">
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{ 
-                width: '48px', 
-                height: '48px', 
-                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', 
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 borderRadius: 'var(--radius-lg)',
                 display: 'flex',
                 alignItems: 'center',
@@ -99,7 +99,7 @@ function Dashboard() {
               </div>
               <span className="stat-label">Responses</span>
             </div>
-            <div className="stat-value">{stats?.overview?.leads || 0}</div>
+            <div className="stat-value">{stats?.overview?.replied || 0}</div>
             <div className="stat-change positive">
               ↑ 8 nieuwe leads
             </div>
@@ -109,10 +109,10 @@ function Dashboard() {
         <div className="premium-card">
           <div className="stat-display">
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <div style={{ 
-                width: '48px', 
-                height: '48px', 
-                background: 'var(--gradient-cool)', 
+              <div style={{
+                width: '48px',
+                height: '48px',
+                background: 'var(--gradient-cool)',
                 borderRadius: 'var(--radius-lg)',
                 display: 'flex',
                 alignItems: 'center',
@@ -124,8 +124,8 @@ function Dashboard() {
               <span className="stat-label">Conversie</span>
             </div>
             <div className="stat-value">
-              {stats?.overview?.conversion_rate
-                ? `${(stats.overview.conversion_rate * 100).toFixed(1)}%`
+              {stats?.overview?.rates?.conversion_rate
+                ? `${stats.overview.rates.conversion_rate}%`
                 : '0%'}
             </div>
             <div className="stat-change positive">

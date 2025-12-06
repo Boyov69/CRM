@@ -12,6 +12,21 @@ db = DatabaseService()
 def get_practices():
     """Get all practices"""
     practices = db.get_practices()
+    
+    # Normalize data for frontend
+    for p in practices:
+        # Map 'gem' to 'gemeente' if missing
+        if 'gemeente' not in p and 'gem' in p:
+            p['gemeente'] = p['gem']
+            
+        # Ensure 'naam' uses 'praktijk' if available and 'naam' is generic or missing
+        if 'praktijk' in p and (not p.get('naam') or p.get('naam') == 'Team'):
+            p['naam'] = p['praktijk']
+            
+        # Map 'notitie' to 'adres' if 'adres' is missing (heuristic)
+        if 'adres' not in p and 'notitie' in p:
+            p['adres'] = p['notitie']
+
     return jsonify(practices)
 
 
