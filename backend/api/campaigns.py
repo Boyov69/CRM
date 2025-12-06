@@ -15,7 +15,7 @@ email_service = EmailService()
 analytics = AnalyticsService()
 
 
-@campaigns_bp.route('/campaigns/start', methods=['POST'])
+@campaigns_bp.route('/campaign/start', methods=['POST'])
 def start_campaign():
     """Start email campaign"""
     try:
@@ -75,7 +75,7 @@ def start_campaign():
         return jsonify({'error': str(e)}), 500
 
 
-@campaigns_bp.route('/campaigns/stats', methods=['GET'])
+@campaigns_bp.route('/campaign/stats', methods=['GET'])
 def get_campaign_stats():
     """Get campaign statistics"""
     try:

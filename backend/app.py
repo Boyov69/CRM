@@ -44,6 +44,24 @@ def create_app(config_class=Config):
     # Register API blueprints
     register_blueprints(app)
     
+    # Register Voice Blueprint
+    from backend.api.voice_api import voice_bp
+    app.register_blueprint(voice_bp, url_prefix='/api/voice')
+    
+    # Initialize WebSocket
+    from flask_sock import Sock
+    sock = Sock(app)
+    
+    from backend.services.voice_service import VoiceService
+    voice_service = VoiceService()
+    
+    @sock.route('/api/voice/stream')
+    def voice_stream(ws):
+        # Run async handler in sync context if needed, or use sock's threading
+        # For simplicity calling the service method handled in a simple loop
+        import asyncio
+        asyncio.run(voice_service.handle_audio_stream(ws))
+    
     # Health check endpoint
     @app.route('/health')
     def health():

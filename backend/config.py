@@ -37,6 +37,11 @@ class Config:
     # Slack
     SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL')
     
+    # Twilio
+    TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+    TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+    TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+    
     # Supabase
     SUPABASE_URL = os.getenv('SUPABASE_URL')
     SUPABASE_KEY = os.getenv('SUPABASE_KEY')
