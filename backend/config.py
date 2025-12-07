@@ -48,6 +48,12 @@ class Config:
     
     # OpenAI
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    
+    # Google Maps API (for lead discovery)
+    GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+    
+    # Brave Search API (for website finding)
+    BRAVE_SEARCH_API_KEY = os.getenv('BRAVE_SEARCH_API_KEY')
     OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4')
     
     # Campaign Settings

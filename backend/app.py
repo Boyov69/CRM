@@ -44,10 +44,6 @@ def create_app(config_class=Config):
     # Register API blueprints
     register_blueprints(app)
     
-    # Register Voice Blueprint
-    from backend.api.voice_api import voice_bp
-    app.register_blueprint(voice_bp, url_prefix='/api/voice')
-    
     # Initialize WebSocket
     from flask_sock import Sock
     sock = Sock(app)

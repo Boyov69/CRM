@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
-import { Home, Users, Mail, TrendingUp, Search, BarChart3, Zap, MessageSquare, Inbox as InboxIcon, Menu, X } from 'lucide-react'
+import { Home, Users, Mail, TrendingUp, Search, BarChart3, Zap, MessageSquare, Inbox as InboxIcon, Menu, X, Mic } from 'lucide-react'
 import Dashboard from './pages/Dashboard'
 import Practices from './pages/Practices'
 import Campaigns from './pages/Campaigns'
@@ -10,6 +10,7 @@ import Pipeline from './pages/Pipeline'
 import Automation from './pages/Automation'
 import Messaging from './pages/Messaging'
 import Inbox from './pages/Inbox'
+import VoiceChat from './pages/VoiceChat'
 import './App.css'
 
 function AppContent() {
@@ -23,7 +24,7 @@ function AppContent() {
   return (
     <div className="app">
       {/* Mobile Menu Toggle */}
-      <button 
+      <button
         className="mobile-menu-toggle"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
       >
@@ -31,7 +32,7 @@ function AppContent() {
       </button>
 
       {/* Sidebar Overlay for Mobile */}
-      <div 
+      <div
         className={`sidebar-overlay ${mobileMenuOpen ? 'active' : ''}`}
         onClick={closeMobileMenu}
       />
@@ -41,8 +42,8 @@ function AppContent() {
         <div className="logo">
           <h2>CRM Premium</h2>
         </div>
-        <div style={{ 
-          textAlign: 'center', 
+        <div style={{
+          textAlign: 'center',
           marginBottom: '1.5rem',
           paddingBottom: '1.5rem',
           borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
@@ -51,8 +52,8 @@ function AppContent() {
         </div>
         <ul className="nav-menu">
           <li>
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className={`nav-link ${isActive('/') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
@@ -61,8 +62,8 @@ function AppContent() {
             </Link>
           </li>
           <li>
-            <Link 
-              to="/practices" 
+            <Link
+              to="/practices"
               className={`nav-link ${isActive('/practices') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
@@ -71,8 +72,8 @@ function AppContent() {
             </Link>
           </li>
           <li>
-            <Link 
-              to="/campaigns" 
+            <Link
+              to="/campaigns"
               className={`nav-link ${isActive('/campaigns') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
@@ -81,8 +82,8 @@ function AppContent() {
             </Link>
           </li>
           <li>
-            <Link 
-              to="/pipeline" 
+            <Link
+              to="/pipeline"
               className={`nav-link ${isActive('/pipeline') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
@@ -91,8 +92,8 @@ function AppContent() {
             </Link>
           </li>
           <li>
-            <Link 
-              to="/automation" 
+            <Link
+              to="/automation"
               className={`nav-link ${isActive('/automation') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
@@ -101,8 +102,8 @@ function AppContent() {
             </Link>
           </li>
           <li>
-            <Link 
-              to="/leads" 
+            <Link
+              to="/leads"
               className={`nav-link ${isActive('/leads') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
@@ -111,15 +112,15 @@ function AppContent() {
             </Link>
           </li>
           <li>
-            <Link 
-              to="/inbox" 
+            <Link
+              to="/inbox"
               className={`nav-link ${isActive('/inbox') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
               <InboxIcon size={20} />
               <span>Inbox</span>
-              <span className="badge-premium" style={{ 
-                marginLeft: 'auto', 
+              <span className="badge-premium" style={{
+                marginLeft: 'auto',
                 fontSize: '0.6875rem',
                 background: 'var(--gradient-accent)',
                 color: 'white',
@@ -128,15 +129,15 @@ function AppContent() {
             </Link>
           </li>
           <li>
-            <Link 
-              to="/messaging" 
+            <Link
+              to="/messaging"
               className={`nav-link ${isActive('/messaging') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
               <MessageSquare size={20} />
               <span>Messaging</span>
-              <span className="badge-premium" style={{ 
-                marginLeft: 'auto', 
+              <span className="badge-premium" style={{
+                marginLeft: 'auto',
                 fontSize: '0.6875rem',
                 background: 'var(--gradient-accent)',
                 color: 'white',
@@ -145,8 +146,25 @@ function AppContent() {
             </Link>
           </li>
           <li>
-            <Link 
-              to="/analytics" 
+            <Link
+              to="/voice-chat"
+              className={`nav-link ${isActive('/voice-chat') ? 'active' : ''}`}
+              onClick={closeMobileMenu}
+            >
+              <Mic size={20} />
+              <span>Praat met Sofie</span>
+              <span className="badge-premium" style={{
+                marginLeft: 'auto',
+                fontSize: '0.6875rem',
+                background: 'var(--gradient-accent)',
+                color: 'white',
+                padding: '0.125rem 0.5rem'
+              }}>AI</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/analytics"
               className={`nav-link ${isActive('/analytics') ? 'active' : ''}`}
               onClick={closeMobileMenu}
             >
@@ -167,6 +185,7 @@ function AppContent() {
           <Route path="/leads" element={<Leads />} />
           <Route path="/inbox" element={<Inbox />} />
           <Route path="/messaging" element={<Messaging />} />
+          <Route path="/voice-chat" element={<VoiceChat />} />
           <Route path="/analytics" element={<Analytics />} />
         </Routes>
       </main>
